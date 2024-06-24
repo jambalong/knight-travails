@@ -17,7 +17,7 @@ class Board
     end
 
     paths = find_path(piece)
-    puts "=> You made it in #{paths.length} moves! Here's your path:"
+    puts "=> You made it in #{paths.length - 1} moves! Here's your path:"
     paths.each { |path| p path }
     paths
   end
