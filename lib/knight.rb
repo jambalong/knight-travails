@@ -25,5 +25,4 @@ class Knight
 
     moves
   end
-
 end
