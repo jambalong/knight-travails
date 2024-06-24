@@ -12,20 +12,20 @@ class Board
 
   def knight_moves(location, destination)
     self.piece = Knight.new(location)
-    build_tree(destination)
-    move_piece(destination)
-    print_path(piece)
+    construct_path_tree_to(destination)
+    move_piece_to(destination)
+    print_move_path(piece)
   end
 
   private
 
-  def print_path(piece)
-    paths = find_path(piece)
+  def print_move_path(piece)
+    paths = trace_path_back(piece)
     puts "=> You made it in #{paths.length - 1} moves! Here's your path:"
     paths.each { |path| p path }
   end
 
-  def move_piece(destination)
+  def move_piece_to(destination)
     queue = []
     until piece.position == destination
       piece.paths.each { |path| queue << path }
@@ -33,12 +33,12 @@ class Board
     end
   end
 
-  def build_tree(destination, queue = [piece])
+  def construct_path_tree_to(destination, queue = [piece])
     until queue.empty?
       current_piece = queue.shift
       return if current_piece.position == destination
 
-      build_paths(current_piece)
+      generate_possible_paths(current_piece)
 
       current_piece.paths.each do |path|
         queue << path unless queue.include?(path)
@@ -46,17 +46,27 @@ class Board
     end
   end
 
-  def build_paths(piece)
+  def generate_possible_paths(piece)
     piece.moves.each do |move|
-      path = piece.class.new(move, piece)
-      piece.paths << path unless piece.paths.include?(path)
+      unless path_exists_at_position?(piece, move)
+        new_path = create_path(piece, move)
+        piece.paths << new_path
+      end
     end
   end
 
-  def find_path(piece, path = [])
-    return path.reverse unless piece
+  def path_exists_at_position?(piece, position)
+    piece.paths.any? { |path| path.position == position }
+  end
 
-    path << piece.position
-    find_path(piece.last_pos, path)
+  def create_path(piece, position)
+    piece.class.new(position, piece)
+  end
+
+  def trace_path_back(piece, current_path = [])
+    return current_path.reverse unless piece
+
+    current_path << piece.position
+    trace_path_back(piece.last_pos, current_path)
   end
 end
